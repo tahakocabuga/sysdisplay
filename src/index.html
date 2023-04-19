@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Info</title>
+    <style>
+        pre {
+            font-family: monospace;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+    <pre id="systemInfo"></pre>
+
+    <script>
+        const systemInfoElement = document.getElementById("systemInfo");
+
+        const updateSystemInfo = async () => {
+    try {
+        const response = await fetch('/api/sysinfo');
+        const data = await response.json();
+
+        const uptime = parseInt(data.uptime);
+        const hours = Math.floor(uptime / 3600);
+        const minutes = Math.floor((uptime % 3600) / 60);
+        const seconds = uptime % 60;
+        const formattedUptime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        const table = `
++----------------------+----------+
+|        Data          |   Value  |
++----------------------+----------+
+| Available Memory     | ${data.available_memory.padStart(8)} |
+| Total Memory         | ${data.total_memory.padStart(8)} |
+| Used Memory          | ${data.used_memory.padStart(8)} |
+| Used Memory Percent  | ${data.used_memory_percent.padStart(6)}   |
+| Core Count           | ${data.core_count.toString().padStart(8)} |
+| CPU Usage            | ${data.cpu_usage.padStart(6)}   |
+| Total Swap           | ${data.total_swap.padStart(8)} |
+| Used Swap            | ${data.used_swap.padStart(8)} |
+| Used Swap Percent    | ${data.used_swap_percent.padStart(6)}   |
+| Uptime               | ${formattedUptime.padStart(8)} |
+| Load Average (1)     | ${data.load_average.one.padStart(8)} |
+| Load Average (5)     | ${data.load_average.five.padStart(8)} |
+| Load Average (15)    | ${data.load_average.fifteen.padStart(8)} |
++----------------------+----------+
+`;
+        systemInfoElement.textContent = table;
+    } catch (error) {
+        console.error('Error fetching system info:', error);
+    }
+};
+
+updateSystemInfo();
+setInterval(updateSystemInfo, 1000);
+
+
+        updateSystemInfo();
+        setInterval(updateSystemInfo, 1000);
+    </script>
+</body>
+</html>
